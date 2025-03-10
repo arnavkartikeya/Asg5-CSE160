@@ -37,12 +37,11 @@
 <body>
     <div id="info">
       <div>A not at all accurate depiction of the solar system.</div>
-      <div>Move around with WASD and drag across the screen to use the regular camera.</div>
-      <div>To use the orbital camera, press esc and drag, it will start an orbital camera centered at the sun.</div>
+      <div>Drag around to orbit the sun, scroll out to see more.</div>
       <div>There are 20 primary objects, 8 planets, 1 sun, 1 satellite, 2 rings, and 8 torus to depict the orbits.</div>
       <div>There is 3 light sources, ambient light, point light (the sun), and a green directional light above.</div>
-      <div>For 3 extra features, I have shadows, billboards, and picking. Press esc and click on an object to get a label for it.</div>
-      <div>The earth is a rendered object from an online source.</div>
+      <div>For 3 extra features, I have shadows, billboards, and picking. Click on an object to get a billboard/label for it.</div>
+      <div>The earth is a rendered object from an online source. Jupiter and Sun are mapped with textures.</div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -54,17 +53,21 @@
     <script>
         const color = 0xE1A8A8;
         const intensity = 0.5; 
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
         controls.target.set(0, 0, 0);
         controls.minDistance = 5;
         controls.maxDistance = 150;
+        camera.position.set(0, 30, 50);
+
         const textureLoader = new THREE.TextureLoader();
         const jupiterTexture = textureLoader.load('jupitertexture.jpg');
         const sunTexture = textureLoader.load('suntexture.png'); 
@@ -276,9 +279,10 @@
                 pitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, pitch));
             }
         });
-        renderer.domElement.addEventListener('click', () => {
-            document.body.requestPointerLock();
-        });
+        // renderer.domElement.addEventListener('click', () => {
+        //     document.body.requestPointerLock();
+        // });
+
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         const labelMap = new Map();
@@ -458,19 +462,7 @@
             const pitchMatrix = new THREE.Matrix4();
             pitchMatrix.makeRotationAxis(right, pitch);
             forward.applyMatrix4(pitchMatrix);
-            if (keys.w) {
-                camera.position.add(forward.clone().multiplyScalar(moveSpeed));
-            }
-            if (keys.s) {
-                camera.position.add(forward.clone().multiplyScalar(-moveSpeed));
-            }
-            if (keys.a) {
-                camera.position.add(right.clone().multiplyScalar(-moveSpeed));
-            }
-            if (keys.d) {
-                camera.position.add(right.clone().multiplyScalar(moveSpeed));
-            }
-            camera.lookAt(camera.position.clone().add(forward));
+
             renderer.render(scene, camera);
         }
         window.addEventListener('resize', function() {
@@ -484,3 +476,6 @@
     </script>
 </body>
 </html>
+
+
+
